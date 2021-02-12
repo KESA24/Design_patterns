@@ -23,7 +23,7 @@ Step 6 also happens within the constructor: Check for whether there exists any c
 
 Step 7: Test for whether the singleton class works as expected. The class creates only one instance irrespective of how many times it is instantiated.
 
-**Private Note:** It is  Not recommended to make the phonenumber datatype a number due to the instance of needing the country codes and for exampele in numbers 07896546891 = 7896546891 but "0786453298" != "786453298". Also we are not going to use it for any calculations
+**Private Note:** It is  Not recommended to make the phonenumber datatype a number due to the instance of needing the country codes and for example in numbers 07896546891 = 7896546891 but "0786453298" != "786453298". Also we are not going to use it for any calculations
 
 
         

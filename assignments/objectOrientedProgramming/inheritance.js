@@ -19,8 +19,10 @@ var Animal = /** @class */ (function () {
     Animal.prototype.eat = function () {
         console.log("Eating");
     };
+    ;
     return Animal;
 }());
+;
 // Dog inherits from Animal
 var Dog = /** @class */ (function (_super) {
     __extends(Dog, _super);
@@ -30,8 +32,10 @@ var Dog = /** @class */ (function (_super) {
     Dog.prototype.bark = function () {
         console.log("Barking");
     };
+    ;
     return Dog;
 }(Animal));
+;
 // Class BabyDog inherits  from both  Dog and Animal. 
 var BabyDog = /** @class */ (function (_super) {
     __extends(BabyDog, _super);
@@ -41,8 +45,10 @@ var BabyDog = /** @class */ (function (_super) {
     BabyDog.prototype.weep = function () {
         console.log("Weeping");
     };
+    ;
     return BabyDog;
 }(Dog));
+;
 var obj = new BabyDog();
 obj.eat();
 obj.bark();

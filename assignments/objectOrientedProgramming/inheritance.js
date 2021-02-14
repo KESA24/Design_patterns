@@ -12,6 +12,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+// This is the original Animal class
 var Animal = /** @class */ (function () {
     function Animal() {
     }
@@ -20,6 +21,7 @@ var Animal = /** @class */ (function () {
     };
     return Animal;
 }());
+// Dog inherits from Animal
 var Dog = /** @class */ (function (_super) {
     __extends(Dog, _super);
     function Dog() {
@@ -30,6 +32,7 @@ var Dog = /** @class */ (function (_super) {
     };
     return Dog;
 }(Animal));
+// Class BabyDog inherits  from both  Dog and Animal. 
 var BabyDog = /** @class */ (function (_super) {
     __extends(BabyDog, _super);
     function BabyDog() {

@@ -44,3 +44,6 @@ const commute = new Commute();
 console.log(commute.travel(new Bus()));
 console.log(commute.travel(new Taxi()));
 console.log(commute.travel(new Bicycle()));
+
+
+

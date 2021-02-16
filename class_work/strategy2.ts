@@ -23,6 +23,7 @@ Step 8: Test for whether the The Strategy Pattern is implemented successfully.
 */
 
 // Travel Strategy SuperType
+
 interface TravelStrategy{
     travel(): any
 }

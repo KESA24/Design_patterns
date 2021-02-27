@@ -1,95 +1,126 @@
 /**
- * The base Component interface defines operations that can be altered by
- * decorators.
+ * The Subject interface declares a set of methods for managing subscribers.
  */
-interface Component {
-    operation(): string;
+interface Subject {
+    // Attach an observer to the subject.
+    attach(observer: Observer): void;
+
+    // Detach an observer from the subject.
+    detach(observer: Observer): void;
+
+    // Notify all observers about an event.
+    notify(): void;
 }
 
 /**
- * Concrete Components provide default implementations of the operations. There
- * might be several variations of these classes.
+ * The Subject owns some important state and notifies observers when the state
+ * changes.
  */
-class ConcreteComponent implements Component {
-    public operation(): string {
-        return 'ConcreteComponent';
+class ConcreteSubject implements Subject {
+    /**
+     * @type {number} For the sake of simplicity, the Subject's state, essential
+     * to all subscribers, is stored in this variable.
+     */
+    public state: number;
+
+    /**
+     * @type {Observer[]} List of subscribers. In real life, the list of
+     * subscribers can be stored more comprehensively (categorized by event
+     * type, etc.).
+     */
+    private observers: Observer[] = [];
+
+    /**
+     * The subscription management methods.
+     */
+    public attach(observer: Observer): void {
+        const isExist = this.observers.includes(observer);
+        if (isExist) {
+            return console.log('Subject: Observer has been attached already.');
+        }
+
+        console.log('Subject: Attached an observer.');
+        this.observers.push(observer);
     }
-}
 
-/**
- * The base Decorator class follows the same interface as the other components.
- * The primary purpose of this class is to define the wrapping interface for all
- * concrete decorators. The default implementation of the wrapping code might
- * include a field for storing a wrapped component and the means to initialize
- * it.
- */
-class Decorator implements Component {
-    protected component: Component;
+    public detach(observer: Observer): void {
+        const observerIndex = this.observers.indexOf(observer);
+        if (observerIndex === -1) {
+            return console.log('Subject: Nonexistent observer.');
+        }
 
-    constructor(component: Component) {
-        this.component = component;
+        this.observers.splice(observerIndex, 1);
+        console.log('Subject: Detached an observer.');
     }
 
     /**
-     * The Decorator delegates all work to the wrapped component.
+     * Trigger an update in each subscriber.
      */
-    public operation(): string {
-        return this.component.operation();
+    public notify(): void {
+        console.log('Subject: Notifying observers...');
+        for (const observer of this.observers) {
+            observer.update(this);
+        }
     }
-}
 
-/**
- * Concrete Decorators call the wrapped object and alter its result in some way.
- */
-class ConcreteDecoratorA extends Decorator {
     /**
-     * Decorators may call parent implementation of the operation, instead of
-     * calling the wrapped object directly. This approach simplifies extension
-     * of decorator classes.
+     * Usually, the subscription logic is only a fraction of what a Subject can
+     * really do. Subjects commonly hold some important business logic, that
+     * triggers a notification method whenever something important is about to
+     * happen (or after it).
      */
-    public operation(): string {
-        return `ConcreteDecoratorA(${super.operation()})`;
+    public someBusinessLogic(): void {
+        console.log('\nSubject: I\'m doing something important.');
+        this.state = Math.floor(Math.random() * (10 + 1));
+
+        console.log(`Subject: My state has just changed to: ${this.state}`);
+        this.notify();
     }
 }
 
 /**
- * Decorators can execute their behavior either before or after the call to a
- * wrapped object.
+ * The Observer interface declares the update method, used by subjects.
  */
-class ConcreteDecoratorB extends Decorator {
-    public operation(): string {
-        return `ConcreteDecoratorB(${super.operation()})`;
+interface Observer {
+    // Receive update from subject.
+    update(subject: Subject): void;
+}
+
+/**
+ * Concrete Observers react to the updates issued by the Subject they had been
+ * attached to.
+ */
+class ConcreteObserverA implements Observer {
+    public update(subject: Subject): void {
+        if (subject instanceof ConcreteSubject && subject.state < 3) {
+            console.log('ConcreteObserverA: Reacted to the event.');
+        }
+    }
+}
+
+class ConcreteObserverB implements Observer {
+    public update(subject: Subject): void {
+        if (subject instanceof ConcreteSubject && (subject.state === 0 || subject.state >= 2)) {
+            console.log('ConcreteObserverB: Reacted to the event.');
+        }
     }
 }
 
 /**
- * The client code works with all objects using the Component interface. This
- * way it can stay independent of the concrete classes of components it works
- * with.
+ * The client code.
  */
-function clientCode(component: Component) {
-    // ...
 
-    console.log(`RESULT: ${component.operation()}`);
+const subject = new ConcreteSubject();
 
-    // ...
-}
+const observer1 = new ConcreteObserverA();
+subject.attach(observer1);
 
-/**
- * This way the client code can support both simple components...
- */
-const simple = new ConcreteComponent();
-console.log('Client: I\'ve got a simple component:');
-clientCode(simple);
-console.log('');
+const observer2 = new ConcreteObserverB();
+subject.attach(observer2);
 
-/**
- * ...as well as decorated ones.
- *
- * Note how decorators can wrap not only simple components but the other
- * decorators as well.
- */
-const decorator1 = new ConcreteDecoratorA(simple);
-const decorator2 = new ConcreteDecoratorB(decorator1);
-console.log('Client: Now I\'ve got a decorated component:');
-clientCode(decorator2);
+subject.someBusinessLogic();
+subject.someBusinessLogic();
+
+subject.detach(observer2);
+
+subject.someBusinessLogic();

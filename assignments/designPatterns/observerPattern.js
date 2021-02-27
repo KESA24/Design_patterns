@@ -1,103 +1,92 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 /**
- * Concrete Components provide default implementations of the operations. There
- * might be several variations of these classes.
+ * The Subject owns some important state and notifies observers when the state
+ * changes.
  */
-var ConcreteComponent = /** @class */ (function () {
-    function ConcreteComponent() {
-    }
-    ConcreteComponent.prototype.operation = function () {
-        return 'ConcreteComponent';
-    };
-    return ConcreteComponent;
-}());
-/**
- * The base Decorator class follows the same interface as the other components.
- * The primary purpose of this class is to define the wrapping interface for all
- * concrete decorators. The default implementation of the wrapping code might
- * include a field for storing a wrapped component and the means to initialize
- * it.
- */
-var Decorator = /** @class */ (function () {
-    function Decorator(component) {
-        this.component = component;
+var ConcreteSubject = /** @class */ (function () {
+    function ConcreteSubject() {
+        /**
+         * @type {Observer[]} List of subscribers. In real life, the list of
+         * subscribers can be stored more comprehensively (categorized by event
+         * type, etc.).
+         */
+        this.observers = [];
     }
     /**
-     * The Decorator delegates all work to the wrapped component.
+     * The subscription management methods.
      */
-    Decorator.prototype.operation = function () {
-        return this.component.operation();
+    ConcreteSubject.prototype.attach = function (observer) {
+        var isExist = this.observers.includes(observer);
+        if (isExist) {
+            return console.log('Subject: Observer has been attached already.');
+        }
+        console.log('Subject: Attached an observer.');
+        this.observers.push(observer);
     };
-    return Decorator;
+    ConcreteSubject.prototype.detach = function (observer) {
+        var observerIndex = this.observers.indexOf(observer);
+        if (observerIndex === -1) {
+            return console.log('Subject: Nonexistent observer.');
+        }
+        this.observers.splice(observerIndex, 1);
+        console.log('Subject: Detached an observer.');
+    };
+    /**
+     * Trigger an update in each subscriber.
+     */
+    ConcreteSubject.prototype.notify = function () {
+        console.log('Subject: Notifying observers...');
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var observer = _a[_i];
+            observer.update(this);
+        }
+    };
+    /**
+     * Usually, the subscription logic is only a fraction of what a Subject can
+     * really do. Subjects commonly hold some important business logic, that
+     * triggers a notification method whenever something important is about to
+     * happen (or after it).
+     */
+    ConcreteSubject.prototype.someBusinessLogic = function () {
+        console.log('\nSubject: I\'m doing something important.');
+        this.state = Math.floor(Math.random() * (10 + 1));
+        console.log("Subject: My state has just changed to: " + this.state);
+        this.notify();
+    };
+    return ConcreteSubject;
 }());
 /**
- * Concrete Decorators call the wrapped object and alter its result in some way.
+ * Concrete Observers react to the updates issued by the Subject they had been
+ * attached to.
  */
-var ConcreteDecoratorA = /** @class */ (function (_super) {
-    __extends(ConcreteDecoratorA, _super);
-    function ConcreteDecoratorA() {
-        return _super !== null && _super.apply(this, arguments) || this;
+var ConcreteObserverA = /** @class */ (function () {
+    function ConcreteObserverA() {
     }
-    /**
-     * Decorators may call parent implementation of the operation, instead of
-     * calling the wrapped object directly. This approach simplifies extension
-     * of decorator classes.
-     */
-    ConcreteDecoratorA.prototype.operation = function () {
-        return "ConcreteDecoratorA(" + _super.prototype.operation.call(this) + ")";
+    ConcreteObserverA.prototype.update = function (subject) {
+        if (subject instanceof ConcreteSubject && subject.state < 3) {
+            console.log('ConcreteObserverA: Reacted to the event.');
+        }
     };
-    return ConcreteDecoratorA;
-}(Decorator));
-/**
- * Decorators can execute their behavior either before or after the call to a
- * wrapped object.
- */
-var ConcreteDecoratorB = /** @class */ (function (_super) {
-    __extends(ConcreteDecoratorB, _super);
-    function ConcreteDecoratorB() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    return ConcreteObserverA;
+}());
+var ConcreteObserverB = /** @class */ (function () {
+    function ConcreteObserverB() {
     }
-    ConcreteDecoratorB.prototype.operation = function () {
-        return "ConcreteDecoratorB(" + _super.prototype.operation.call(this) + ")";
+    ConcreteObserverB.prototype.update = function (subject) {
+        if (subject instanceof ConcreteSubject && (subject.state === 0 || subject.state >= 2)) {
+            console.log('ConcreteObserverB: Reacted to the event.');
+        }
     };
-    return ConcreteDecoratorB;
-}(Decorator));
+    return ConcreteObserverB;
+}());
 /**
- * The client code works with all objects using the Component interface. This
- * way it can stay independent of the concrete classes of components it works
- * with.
+ * The client code.
  */
-function clientCode(component) {
-    // ...
-    console.log("RESULT: " + component.operation());
-    // ...
-}
-/**
- * This way the client code can support both simple components...
- */
-var simple = new ConcreteComponent();
-console.log('Client: I\'ve got a simple component:');
-clientCode(simple);
-console.log('');
-/**
- * ...as well as decorated ones.
- *
- * Note how decorators can wrap not only simple components but the other
- * decorators as well.
- */
-var decorator1 = new ConcreteDecoratorA(simple);
-var decorator2 = new ConcreteDecoratorB(decorator1);
-console.log('Client: Now I\'ve got a decorated component:');
-clientCode(decorator2);
+var subject = new ConcreteSubject();
+var observer1 = new ConcreteObserverA();
+subject.attach(observer1);
+var observer2 = new ConcreteObserverB();
+subject.attach(observer2);
+subject.someBusinessLogic();
+subject.someBusinessLogic();
+subject.detach(observer2);
+subject.someBusinessLogic();
